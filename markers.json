@@ -3,36 +3,51 @@
         "description": "BDNF (Depression, Anxiety, PTSD) - Involved in brain plasticity and neurogenesis.",
         "citation": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3181836/",
         "effect": "Increased risk for mood disorders such as depression and anxiety.",
-        "chances": "Moderate (20-30%) - Environmental factors play a significant role.",
-        "prevalence": "20-50% (A allele, varies by population)"
+        "chances_percent": 25,
+        "chances_description": "Moderate (20-30%) - Environmental factors play a significant role.",
+        "prevalence_percent": 35,
+        "prevalence_description": "20-50% (A allele, varies by population)",
+        "tags": ["mental health", "mood disorders", "neuroplasticity"]
     },
     "rs1800497": {
         "description": "DRD2 (Addiction, Impulsivity) - Influences dopamine receptor sensitivity.",
         "citation": "https://pubmed.ncbi.nlm.nih.gov/16385449/",
         "effect": "Associated with impulsivity and increased addiction risk.",
-        "chances": "Moderate to High (30-50%) - Strong association with addiction risk.",
-        "prevalence": "30% (T allele, linked to higher addiction risk)"
+        "chances_percent": 40,
+        "chances_description": "Moderate to High (30-50%) - Strong association with addiction risk.",
+        "prevalence_percent": 30,
+        "prevalence_description": "30% (T allele, linked to higher addiction risk)",
+        "tags": ["mental health", "addiction", "dopamine regulation"]
     },
     "rs40184": {
         "description": "GRIK3 (Bipolar Disorder) - Involved in excitatory neurotransmission.",
         "citation": "https://pubmed.ncbi.nlm.nih.gov/15037792/",
         "effect": "Linked to mood instability and bipolar disorder.",
-        "chances": "Low to Moderate (10-20%) - Limited data but possible impact on mood.",
-        "prevalence": "Limited data, C allele more common"
+        "chances_percent": 15,
+        "chances_description": "Low to Moderate (10-20%) - Limited data but possible impact on mood.",
+        "prevalence_percent": 25,
+        "prevalence_description": "Limited data, C allele more common",
+        "tags": ["mental health", "bipolar disorder", "neurotransmission"]
     },
     "rs1360780": {
         "description": "FKBP5 (Stress Response, PTSD) - Regulates the stress hormone system.",
         "citation": "https://pubmed.ncbi.nlm.nih.gov/16949641/",
         "effect": "Increased stress sensitivity and PTSD risk.",
-        "chances": "Moderate (25-35%) - Increased stress sensitivity with environmental triggers.",
-        "prevalence": "30-40% (T allele, linked to increased stress sensitivity)"
+        "chances_percent": 30,
+        "chances_description": "Moderate (25-35%) - Increased stress sensitivity with environmental triggers.",
+        "prevalence_percent": 35,
+        "prevalence_description": "30-40% (T allele, linked to increased stress sensitivity)",
+        "tags": ["mental health", "stress response", "PTSD"]
     },
     "rs1800955": {
         "description": "DRD4 (ADHD, Impulsivity) - Influences dopamine regulation.",
         "citation": "https://pubmed.ncbi.nlm.nih.gov/19133601/",
         "effect": "Associated with impulsivity and ADHD susceptibility.",
-        "chances": "Moderate (20-40%) - Higher likelihood in combination with lifestyle factors.",
-        "prevalence": "20-30% (T allele, associated with impulsivity and attention issues)"
+        "chances_percent": 30,
+        "chances_description": "Moderate (20-40%) - Higher likelihood in combination with lifestyle factors.",
+        "prevalence_percent": 25,
+        "prevalence_description": "20-30% (T allele, associated with impulsivity and attention issues)",
+        "tags": ["mental health", "ADHD", "dopamine regulation"]
     }
 }
 

@@ -4,69 +4,152 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DNA Marker Analysis</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid black; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
-<body>
-    <h2>Upload Your 23andMe DNA File</h2>
-    <input type="file" id="fileInput" accept=".zip, .txt">
-    <table id="resultsTable">
-        <thead>
-            <tr>
-                <th>Marker</th>
-                <th>Description</th>
-                <th>Citation</th>
-                <th>Effect</th>
-                <th>Chances</th>
-                <th>Prevalence</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Upload Your 23andMe DNA File</h2>
+        <div class="input-group mb-3">
+            <input type="file" id="fileInput" class="form-control" accept=".zip, .txt">
+        </div>
+        <div class="mb-3">
+            <label for="categoryFilter" class="form-label">Filter by Category:</label>
+            <select id="categoryFilter" class="form-select">
+                <option value="all">All Categories</option>
+            </select>
+        </div>
+        <table id="resultsTable" class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th class="sortable" onclick="sortTable(0)">Marker</th>
+                    <th class="sortable" onclick="sortTable(1)">Description</th>
+                    <th class="sortable" onclick="sortTable(2)">Citation</th>
+                    <th class="sortable" onclick="sortTable(3)">Effect</th>
+                    <th class="sortable" onclick="sortTable(4)">Chances (%)</th>
+                    <th class="sortable" onclick="sortTable(5)">Chances Description</th>
+                    <th class="sortable" onclick="sortTable(6)">Prevalence (%)</th>
+                    <th class="sortable" onclick="sortTable(7)">Prevalence Description</th>
+                    <th class="sortable" onclick="sortTable(8)">Tags</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
     <script>
         const snpsDataUrl = 'markers.json';
+        let snpMatches;
+
+        async function loadMarkers() {
+            snpMatches = await fetch(snpsDataUrl).then(res => res.json());
+            const categoryFilter = document.getElementById('categoryFilter');
+            let tagsSet = new Set();
+
+            for (const snp in snpMatches) {
+                snpMatches[snp].tags.forEach(tag => tagsSet.add(tag));
+            }
+
+            tagsSet.forEach(tag => {
+                let option = document.createElement('option');
+                option.value = tag;
+                option.textContent = tag;
+                categoryFilter.appendChild(option);
+            });
+
+            categoryFilter.addEventListener('change', filterResults);
+        }
 
         document.getElementById('fileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = async function(e) {
-                const text = e.target.result;
-                const snpMatches = await fetch(snpsDataUrl).then(res => res.json());
-                const rows = text.split('\n');
-                const tableBody = document.querySelector('#resultsTable tbody');
-                tableBody.innerHTML = '';
-
-                rows.forEach(line => {
-                    if (line.startsWith('#') || !line.trim()) return;
-                    const [rsid, , , genotype] = line.split('\t');
-                    if (snpMatches[rsid]) {
-                        const snp = snpMatches[rsid];
-                        const row = `<tr>
-                            <td>${rsid}</td>
-                            <td>${snp.description}</td>
-                            <td><a href='${snp.citation}' target='_blank'>Source</a></td>
-                            <td>${snp.effect}</td>
-                            <td>${snp.chances}</td>
-                            <td>${snp.prevalence}</td>
-                        </tr>`;
-                        tableBody.innerHTML += row;
-                    }
-                });
+            reader.onload = function(e) {
+                if (file.name.endsWith('.zip')) {
+                    JSZip.loadAsync(e.target.result).then(zip => {
+                        zip.forEach((relativePath, zipEntry) => {
+                            if (zipEntry.name.endsWith('.txt')) {
+                                zipEntry.async("text").then(processDNAData);
+                            }
+                        });
+                    });
+                } else {
+                    processDNAData(e.target.result);
+                }
             };
-
-            if (file.name.endsWith('.zip')) {
-                alert('Please upload an unzipped .txt file for now.');
-            } else {
-                reader.readAsText(file);
-            }
+            reader.readAsArrayBuffer(file);
         });
+
+        function processDNAData(text) {
+            const rows = text.split('\n');
+            const tableBody = document.querySelector('#resultsTable tbody');
+            tableBody.innerHTML = '';
+
+            rows.forEach(line => {
+                if (line.startsWith('#') || !line.trim()) return;
+                const [rsid, , , genotype] = line.split('\t');
+                if (snpMatches[rsid]) {
+                    const snp = snpMatches[rsid];
+                    const row = `<tr data-tags='${JSON.stringify(snp.tags)}'>
+                        <td>${rsid}</td>
+                        <td>${snp.description}</td>
+                        <td><a href='${snp.citation}' target='_blank'>Source</a></td>
+                        <td>${snp.effect}</td>
+                        <td>${snp.chances_percent}</td>
+                        <td>${snp.chances_description}</td>
+                        <td>${snp.prevalence_percent}</td>
+                        <td>${snp.prevalence_description}</td>
+                        <td>${snp.tags.join(', ')}</td>
+                    </tr>`;
+                    tableBody.innerHTML += row;
+                }
+            });
+        }
+
+        function filterResults() {
+            const filterValue = document.getElementById('categoryFilter').value;
+            const rows = document.querySelectorAll('#resultsTable tbody tr');
+            rows.forEach(row => {
+                const tags = JSON.parse(row.getAttribute('data-tags'));
+                row.style.display = filterValue === 'all' || tags.includes(filterValue) ? '' : 'none';
+            });
+        }
+
+        function sortTable(n) {
+            let table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("resultsTable");
+            switching = true;
+            dir = "asc";
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < rows.length - 1; i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n].innerHTML.toLowerCase();
+                    y = rows[i + 1].getElementsByTagName("TD")[n].innerHTML.toLowerCase();
+                    if ((dir == "asc" && x > y) || (dir == "desc" && x < y)) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+
+        loadMarkers();
     </script>
 </body>
 </html>
